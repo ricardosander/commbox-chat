@@ -6,12 +6,14 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
+import br.com.commbox.chat.model.Mensagem;
+
 public class Notificador implements Runnable {
 
 	private final List<Socket> clientes;
-	private final BlockingQueue<String> mensagens;
+	private final BlockingQueue<Mensagem> mensagens;
 
-	public Notificador(List<Socket> clientes, BlockingQueue<String> mensagens) {
+	public Notificador(List<Socket> clientes, BlockingQueue<Mensagem> mensagens) {
 		this.clientes = clientes;
 		this.mensagens = mensagens;
 	}
@@ -26,7 +28,7 @@ public class Notificador implements Runnable {
 
 				System.out.println("\n\nEsperando mensagem para notificar.");
 
-				String mensagem = this.mensagens.take();
+				Mensagem mensagem = this.mensagens.take();
 
 				System.out.println("\n\nPeguei uma mensagem: " + mensagem);
 
@@ -34,12 +36,17 @@ public class Notificador implements Runnable {
 
 					try {
 
+						String mensagemEnviar = mensagem.getUsuario() + " disse: " + mensagem.getMensagem();
+						if (cliente.getPort() == mensagem.getUsuario()) {
+							mensagemEnviar = "Você disse: " + mensagem.getMensagem();	
+						}
+						
 						System.out.println("\n\nDistribuindo para cada cliente.");
 
 						PrintStream saida = new PrintStream(cliente.getOutputStream());
 
 						System.out.println("\n\nImprimindo para o cliente.");
-						saida.println(mensagem);
+						saida.println(mensagemEnviar);
 						System.out.println("\n\nMensagem impressa para o cliente.");
 //						saida.close();
 

@@ -5,12 +5,14 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 
+import br.com.commbox.chat.model.Mensagem;
+
 public class RecebeCliente implements Runnable {
 
 	private Socket cliente;
-	private BlockingQueue<String> mensagens;
+	private BlockingQueue<Mensagem> mensagens;
 
-	public RecebeCliente(BlockingQueue<String> mensagens, Socket cliente) {
+	public RecebeCliente(BlockingQueue<Mensagem> mensagens, Socket cliente) {
 		this.mensagens = mensagens;
 		this.cliente = cliente;
 	}
@@ -26,13 +28,14 @@ public class RecebeCliente implements Runnable {
 			while (scanner.hasNextLine()) {
 				
 				System.out.println("\n\nLendo mensagem do cliente " + this.cliente.getPort());
-				String mensagem = this.cliente.getPort() + " disse: " + scanner.nextLine();
+				String mensagem = scanner.nextLine();
 				
 				System.out.println("Clietne " + cliente.getPort() + " enviou: ");
-				System.out.println(mensagem);
+				System.out.println(this.cliente.getPort() + " disse: " + mensagem);
 				
 				System.out.println("Colocando mensagem do cliente " + this.cliente.getPort() + " na fila de propagação: ");
-				this.mensagens.put(mensagem);
+				
+				this.mensagens.put(new Mensagem(cliente.getPort(), mensagem));
 				System.out.println("\n\nMensagem do cliente " + this.cliente.getPort() + " adicionada na fila.");
 			}
 			

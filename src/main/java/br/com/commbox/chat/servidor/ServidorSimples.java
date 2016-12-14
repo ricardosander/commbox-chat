@@ -8,18 +8,20 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import br.com.commbox.chat.model.Mensagem;
+
 public class ServidorSimples implements Servidor {
 
 	private ServerSocket servidor;
-	private final BlockingQueue<String> mensagens;
+	private final BlockingQueue<Mensagem> mensagens;
 	private final List<Socket> clientes;
 	
 
 	public ServidorSimples(int porta) throws IOException {
 
 		servidor = new ServerSocket(porta);
-		this.clientes = new ArrayList<Socket>();
-		this.mensagens = new ArrayBlockingQueue<String>(2);
+		this.clientes = new ArrayList<>();
+		this.mensagens = new ArrayBlockingQueue<>(2);
 		
 		System.out.println("\f----- Iniciando Servidor-----");
 		System.out.println("Porta: " + servidor.getLocalPort());
