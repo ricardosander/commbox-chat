@@ -1,6 +1,8 @@
 package br.com.commbox.chat.cliente;
 
 import br.com.commbox.chat.conexao.ConexaoCliente;
+import br.com.commbox.chat.model.Mensagem;
+import br.com.commbox.chat.model.MensagemFactory;
 import br.com.commbox.chat.ui.Janela;
 
 public class Recebedor implements Runnable {
@@ -15,20 +17,21 @@ public class Recebedor implements Runnable {
 
 	@Override
 	public void run() {
-		
-//		System.out.println("\n\nRecebendo do servidor.");
-		
+
 		String linha;
 		while (this.conexao.temConteudo()) {
 
 			linha = this.conexao.ler();
 
-			// System.out.println("Mensagem recebida do servidor: ");
-			this.janela.escreve(linha);
+			if (linha.trim().isEmpty()) {
+				continue;
+			}
+
+			MensagemFactory mensagemFactory = new MensagemFactory();
+			Mensagem mensagem = mensagemFactory.newMensagem(linha);
+			mensagem.escrever(this.janela);
 		}
 
-		System.out.println("\n\nTerminando de receber do servidor.");
 		this.conexao.fechar();
 	}
-
 }
