@@ -16,20 +16,17 @@ public class Enviador implements Runnable {
 	@Override
 	public void run() {
 
-		System.out.println("\n\nIniciando thread da leitura.");
-
-		System.out.println("\n\nComeçando leitura do teclado: ");
 		String linha;
 		do {
 
 			linha = janela.getMensagem();
-			if (linha.equals("fim")) {
+			if (linha.equals("\\q")) {
 				break;
 			}
 			this.conexao.escrever(linha);
-		} while (!linha.equals("fim"));
+		} while (!linha.equals("\\q"));
 
-		System.out.println("Finalizando leitura do teclado.");
+		this.conexao.fechar();
 	}
 
 }
