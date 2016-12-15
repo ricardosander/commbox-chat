@@ -38,7 +38,8 @@ public class Cliente {
 	}
 	
 	public void parar() {
-		
+		this.janela.fechar();
+		this.cliente.fechar();
 	}
 
 	public static void main(String[] args) {
