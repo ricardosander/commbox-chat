@@ -144,7 +144,7 @@ public class JanelaChat implements Janela {
 			try {
 				this.wait();
 
-				String mensagem = this.textoMensagem.getText();
+				String mensagem = this.textoMensagem.getText().trim();
 
 				textoMensagem.setText(null);
 
