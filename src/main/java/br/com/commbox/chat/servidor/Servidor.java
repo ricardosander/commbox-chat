@@ -1,6 +1,7 @@
 package br.com.commbox.chat.servidor;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -22,9 +23,9 @@ public class Servidor {
 	public Servidor(int porta) {
 
 		servidor = new ConexaoServidorFactory().newConexaoServidor(porta);
-		this.clientes = new ArrayList<>();
 		this.mensagens = new ArrayBlockingQueue<>(2);
 		this.threadPool = Executors.newCachedThreadPool(new MinhaThreadFactory());
+		this.clientes = Collections.synchronizedList(new LinkedList<>());
 		
 		System.out.println("\f----- Iniciando Servidor-----");
 		System.out.println("Porta: " + servidor.getId());
@@ -32,25 +33,47 @@ public class Servidor {
 
 	public void rodar() {
 
-		this.threadPool.execute(new Notificador(this.clientes, this.mensagens));
+		this.threadPool.execute(new Notificador(this));
 		while (true) {
 
 			ConexaoCliente cliente = this.servidor.recebeCliente();
 
 			System.out.println("\n\nRecebendo cliente na porta: " + cliente.getId());
-			this.clientes.add(cliente);
+			this.adicionar(cliente);
 
-			this.threadPool.execute(new NotificaEvento(this.mensagens, cliente, "entrou na sala."));
-			this.threadPool.execute(new RecebeCliente(this.threadPool, this.mensagens, cliente));
+			this.threadPool.execute(new RecebeCliente(this, cliente));
 		}
+	}
+	
+	public List<ConexaoCliente> getClientes() {
+		return this.clientes;
+	}
+	
+	public BlockingQueue<Mensagem> getMensagens() {
+		return mensagens;
+	}
+	
+	public void executa(Runnable runnable) {
+		this.threadPool.execute(runnable);
+	}
+	
+	public synchronized void adicionar(ConexaoCliente cliente) {
+		
+		this.clientes.add(cliente);
+		this.threadPool.execute(new UsuariosOnline(this.threadPool, this.clientes));
+	}
+	
+	public synchronized void remover(ConexaoCliente cliente) {
+		
+		this.clientes.remove(cliente);
+		this.threadPool.execute(new UsuariosOnline(this.threadPool, this.clientes));
 	}
 	
 	public void parar() {
 		
 		System.out.println("\n\n\nParando servidor.");
 		//fechar e avisar os clientes.
-		//altera variaveis atomic
-		//shutdown no threadpool
+		this.threadPool.shutdown();
 		this.servidor.fechar();
 	}
 

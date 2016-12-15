@@ -1,66 +1,29 @@
 package br.com.commbox.chat.servidor;
 
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-
-import br.com.commbox.chat.conexao.ConexaoCliente;
 import br.com.commbox.chat.model.Mensagem;
 
 public class Notificador implements Runnable {
 
-	private final List<ConexaoCliente> clientes;
-	private final BlockingQueue<Mensagem> mensagens;
+	private final Servidor servidor;
 
-	public Notificador(List<ConexaoCliente> clientes, BlockingQueue<Mensagem> mensagens) {
-		this.clientes = clientes;
-		this.mensagens = mensagens;
+	public Notificador(Servidor servidor) {
+		this.servidor = servidor;
 	}
 
 	public void run() {
 
 		try {
 
-			System.out.println("\n\nIniciando notificador.");
-
 			while (true) {
 
-				System.out.println("\n\nEsperando mensagem para notificar.");
-
-				Mensagem mensagem = this.mensagens.take();
-
-				System.out.println("\n\nPeguei uma mensagem: " + mensagem);
-
-				this.clientes.forEach(cliente -> {
-
-					String mensagemEnviar;
-					
-					if (mensagem.isAutomatica()) {
-						
-						mensagemEnviar = mensagem.getUsuario() + " " + mensagem.getMensagem();
-						if (cliente.getId() == mensagem.getUsuario()) {
-							mensagemEnviar = "Você " + mensagem.getMensagem();
-						}
-						
-					} else {
-						
-						mensagemEnviar = mensagem.getUsuario() + " disse: " + mensagem.getMensagem();
-						if (cliente.getId() == mensagem.getUsuario()) {
-							mensagemEnviar = "Você disse: " + mensagem.getMensagem();
-						}
-					}
-
-					System.out.println("\n\nDistribuindo para cada cliente.");
-
-					System.out.println("\n\nImprimindo para o cliente.");
-					cliente.escrever(mensagemEnviar);
-					System.out.println("\n\nMensagem impressa para o cliente.");
+				Mensagem mensagem = this.servidor.getMensagens().take();
+				this.servidor.getClientes().forEach(cliente -> {
+					this.servidor.executa(new NotificaCliente(cliente, mensagem));
 				});
-				System.out.println("\n\nMensagem impressa para todos os clientes.");
 			}
 
 		} catch (InterruptedException e) {
 			System.out.println("Erro ao buscar mensagem: " + e.getMessage());
 		}
-		System.out.println("Finalizando notificador.");
 	}
 }
