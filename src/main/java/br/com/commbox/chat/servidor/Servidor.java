@@ -1,6 +1,5 @@
 package br.com.commbox.chat.servidor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -20,7 +19,7 @@ public class Servidor {
 	private final BlockingQueue<Mensagem> mensagens;
 	private final ExecutorService threadPool; 
 
-	public Servidor(int porta) throws IOException {
+	public Servidor(int porta) {
 
 		servidor = new ConexaoServidorFactory().newConexaoServidor(porta);
 		this.clientes = new ArrayList<>();
@@ -45,7 +44,7 @@ public class Servidor {
 		}
 	}
 	
-	public void parar() throws IOException {
+	public void parar() {
 		
 		System.out.println("\n\n\nParando servidor.");
 		//fechar e avisar os clientes.
@@ -54,7 +53,7 @@ public class Servidor {
 		this.servidor.fechar();
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		
 		Servidor servidor = new Servidor(12345);
 		servidor.rodar();

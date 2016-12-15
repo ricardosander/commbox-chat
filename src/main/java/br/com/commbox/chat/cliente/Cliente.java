@@ -1,8 +1,5 @@
 package br.com.commbox.chat.cliente;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-
 import br.com.commbox.chat.conexao.ConexaoCliente;
 import br.com.commbox.chat.conexao.ConexaoClienteFactory;
 import br.com.commbox.chat.ui.Janela;
@@ -13,7 +10,7 @@ public class Cliente {
 	private ConexaoCliente cliente;
 	private Janela janela;
 	
-	public Cliente(String servidor, int porta) throws UnknownHostException, IOException {
+	public Cliente(String servidor, int porta) {
 		
 		this.cliente = new ConexaoClienteFactory().newConexaoCliente(servidor, porta);
 		this.janela = new JanelaFactory().newJanela();
@@ -44,7 +41,7 @@ public class Cliente {
 		
 	}
 
-	public static void main(String[] args) throws UnknownHostException, IOException {
+	public static void main(String[] args) {
 
 		Cliente cliente = new Cliente("localhost", 12345);
 		cliente.rodar();
