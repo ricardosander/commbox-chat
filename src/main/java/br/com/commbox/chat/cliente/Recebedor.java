@@ -1,18 +1,15 @@
 package br.com.commbox.chat.cliente;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Scanner;
-
+import br.com.commbox.chat.conexao.ConexaoCliente;
 import br.com.commbox.chat.ui.Janela;
 
 public class Recebedor implements Runnable {
 
-	private Socket socket;
+	private ConexaoCliente conexao;
 	private Janela janela;
 
-	public Recebedor(Socket socket, Janela janela) {
-		this.socket = socket;
+	public Recebedor(ConexaoCliente cliente, Janela janela) {
+		this.conexao = cliente;
 		this.janela = janela;
 	}
 
@@ -21,26 +18,17 @@ public class Recebedor implements Runnable {
 		
 //		System.out.println("\n\nRecebendo do servidor.");
 		
-		Scanner scanner;
-		try {
-			
-			scanner = new Scanner(this.socket.getInputStream());
-			
-			String linha;
-			while (scanner.hasNext()) {
-				
-				linha = scanner.nextLine();
-				
-//				System.out.println("Mensagem recebida do servidor: ");
-				janela.escreve(linha);
-			}
-			
-			System.out.println("\n\nTerminando de receber do servidor.");
-			scanner.close();
-			
-		} catch (IOException e) {
-			System.out.println("Erro: " + e.getMessage());
+		String linha;
+		while (this.conexao.temConteudo()) {
+
+			linha = this.conexao.ler();
+
+			// System.out.println("Mensagem recebida do servidor: ");
+			this.janela.escreve(linha);
 		}
+
+		System.out.println("\n\nTerminando de receber do servidor.");
+		this.conexao.fechar();
 	}
 
 }

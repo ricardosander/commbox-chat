@@ -2,19 +2,20 @@ package br.com.commbox.chat.servidor;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import br.com.commbox.chat.conexao.ConexaoCliente;
+import br.com.commbox.chat.conexao.ConexaoClienteFactory;
 import br.com.commbox.chat.model.Mensagem;
 
 public class ServidorSimples implements Servidor {
 
 	private ServerSocket servidor;
 	private final BlockingQueue<Mensagem> mensagens;
-	private final List<Socket> clientes;
+	private final List<ConexaoCliente> clientes;
 	
 
 	public ServidorSimples(int porta) throws IOException {
@@ -29,15 +30,16 @@ public class ServidorSimples implements Servidor {
 
 	public void rodar() {
 
+		ConexaoClienteFactory conexaoClienteFactory = new ConexaoClienteFactory();
 		try {
 			
 			new Thread(new Notificador(this.clientes, this.mensagens)).start();
 			
 			while (true) {
 				
-				Socket cliente = servidor.accept();
+				ConexaoCliente cliente = conexaoClienteFactory.newConexaoCliente(servidor.accept());
 				
-				System.out.println("\n\nRecebendo cliente na porta: " + cliente.getPort());
+				System.out.println("\n\nRecebendo cliente na porta: " + cliente.getId());
 				this.clientes.add(cliente);
 				
 				new Thread(new RecebeCliente(this.mensagens, cliente)).start();

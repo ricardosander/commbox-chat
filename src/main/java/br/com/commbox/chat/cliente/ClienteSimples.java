@@ -1,22 +1,23 @@
 package br.com.commbox.chat.cliente;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
+import br.com.commbox.chat.conexao.ConexaoCliente;
+import br.com.commbox.chat.conexao.ConexaoClienteFactory;
 import br.com.commbox.chat.ui.Janela;
 import br.com.commbox.chat.ui.JanelaFactory;
 
 public class ClienteSimples implements Cliente {
 
-	private Socket cliente;
+	private ConexaoCliente cliente;
 	private Janela janela;
 	
 	public ClienteSimples(String servidor, int porta) throws UnknownHostException, IOException {
 		
-		this.cliente = new Socket(servidor, porta);
+		this.cliente = new ConexaoClienteFactory().newConexaoCliente(servidor, porta);
 		this.janela = new JanelaFactory().newJanela();
-		System.out.println("\fConectado ao servidor na porta " + cliente.getPort());
+		System.out.println("\fConectado ao servidor na porta " + cliente.getClass());
 	}
 	
 	public void rodar() {
