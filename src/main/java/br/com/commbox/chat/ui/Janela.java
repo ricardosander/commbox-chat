@@ -6,4 +6,6 @@ public interface Janela {
 	public void fechar();
 	public String getMensagem();
 	public void escreve(String mensagem);
+	public void atualizaUsuarios(String usuarios);
+
 }

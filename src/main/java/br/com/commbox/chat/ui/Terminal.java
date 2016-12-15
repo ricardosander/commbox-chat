@@ -32,4 +32,12 @@ public class Terminal implements Janela {
 		System.out.println("\n" + mensagem);
 	}
 
+	@Override
+	public void atualizaUsuarios(String usuarios) {
+		
+		usuarios = usuarios.replace(";", "\n");
+		System.out.println("\n\n\nUsuários On-line:");
+		System.out.println(usuarios);
+	}
+
 }

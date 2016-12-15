@@ -19,9 +19,11 @@ public class JanelaChat implements Janela {
 	private JFrame janela;
 
 	private JPanel container;
-	private JPanel painelBotoes;
-	private JPanel painelMensagem;
+	private JPanel painelSuperior;
 	private JPanel painelChat;
+	private JPanel painelUsuarios;
+	private JPanel painelMensagem;
+	private JPanel painelBotoes;
 
 	private JButton botaoEnviar;
 	private JButton botaoLimpar;
@@ -29,6 +31,7 @@ public class JanelaChat implements Janela {
 
 	private JTextArea textoChat;
 	private JTextArea textoMensagem;
+	private JTextArea textoUsuarios;
 
 	public JanelaChat() {
 
@@ -49,18 +52,26 @@ public class JanelaChat implements Janela {
 
 		textoChat = new JTextArea(10, 10);
 		textoMensagem = new JTextArea(2, 10);
+		textoUsuarios = new JTextArea(10, 4);
 
+		textoUsuarios.setText("Usuários On-line");
+		
 		textoChat.setEditable(false);
+		textoUsuarios.setEditable(false);
 
 		textoMensagem.setLineWrap(true);
 
 		JScrollPane scrollPaneChat = new JScrollPane(this.textoChat);
-		scrollPaneChat.setPreferredSize(new Dimension(500, 200));
+		scrollPaneChat.setPreferredSize(new Dimension(350, 200));
 
 		JScrollPane scrollPaneMessage = new JScrollPane(this.textoMensagem);
 		scrollPaneMessage.setPreferredSize(new Dimension(500, 50));
 
+		JScrollPane scrollPaneUsuarios = new JScrollPane(textoUsuarios);
+		scrollPaneUsuarios.setPreferredSize(new Dimension(150, 200));
+		
 		this.painelChat.add(scrollPaneChat);
+		this.painelUsuarios.add(scrollPaneUsuarios);
 		this.painelMensagem.add(scrollPaneMessage);
 	}
 
@@ -117,11 +128,18 @@ public class JanelaChat implements Janela {
 		this.container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
 		this.janela.add(container);
 
+		this.painelSuperior = new JPanel();
+		this.painelSuperior.setLayout(new BoxLayout(painelSuperior, BoxLayout.X_AXIS));
+		
 		this.painelChat = new JPanel();
+		this.painelUsuarios = new JPanel();
 		this.painelMensagem = new JPanel();
 		this.painelBotoes = new JPanel();
 
-		this.container.add(this.painelChat);
+		this.painelSuperior.add(this.painelChat);
+		this.painelSuperior.add(this.painelUsuarios);
+		
+		this.container.add(this.painelSuperior);
 		this.container.add(this.painelMensagem);
 		this.container.add(this.painelBotoes);
 	}
@@ -160,5 +178,12 @@ public class JanelaChat implements Janela {
 	@Override
 	public void escreve(String mensagem) {
 		this.textoChat.append(QUEBRA_DE_LINHA + mensagem);
+	}
+
+	@Override
+	public void atualizaUsuarios(String usuarios) {
+		
+		usuarios = usuarios.replace(";", QUEBRA_DE_LINHA);
+		this.textoUsuarios.setText("Usuários On-line" + QUEBRA_DE_LINHA + usuarios);
 	}
 }
