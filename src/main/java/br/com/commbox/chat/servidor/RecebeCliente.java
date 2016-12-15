@@ -1,16 +1,19 @@
 package br.com.commbox.chat.servidor;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
 
 import br.com.commbox.chat.conexao.ConexaoCliente;
 import br.com.commbox.chat.model.Mensagem;
 
 public class RecebeCliente implements Runnable {
 
-	private ConexaoCliente cliente;
-	private BlockingQueue<Mensagem> mensagens;
+	private final ExecutorService threadPool;
+	private final ConexaoCliente cliente;
+	private final BlockingQueue<Mensagem> mensagens;
 
-	public RecebeCliente(BlockingQueue<Mensagem> mensagens, ConexaoCliente cliente) {
+	public RecebeCliente(ExecutorService threadPool, BlockingQueue<Mensagem> mensagens, ConexaoCliente cliente) {
+		this.threadPool = threadPool;
 		this.mensagens = mensagens;
 		this.cliente = cliente;
 	}
@@ -35,6 +38,7 @@ public class RecebeCliente implements Runnable {
 				System.out.println("\n\nMensagem do cliente " + this.cliente.getId() + " adicionada na fila.");
 			}
 			
+			this.threadPool.execute(new NotificaEvento(this.mensagens, this.cliente, "saiu na sala."));
 			System.out.println("Terminando leitura thread do cliente " + this.cliente.getId());
 			cliente.fechar();
 			

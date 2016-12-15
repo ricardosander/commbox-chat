@@ -40,7 +40,8 @@ public class Servidor {
 			System.out.println("\n\nRecebendo cliente na porta: " + cliente.getId());
 			this.clientes.add(cliente);
 
-			this.threadPool.execute(new RecebeCliente(this.mensagens, cliente));
+			this.threadPool.execute(new NotificaEvento(this.mensagens, cliente, "entrou na sala."));
+			this.threadPool.execute(new RecebeCliente(this.threadPool, this.mensagens, cliente));
 		}
 	}
 	

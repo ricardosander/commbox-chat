@@ -32,9 +32,21 @@ public class Notificador implements Runnable {
 
 				this.clientes.forEach(cliente -> {
 
-					String mensagemEnviar = mensagem.getUsuario() + " disse: " + mensagem.getMensagem();
-					if (cliente.getId() == mensagem.getUsuario()) {
-						mensagemEnviar = "Você disse: " + mensagem.getMensagem();
+					String mensagemEnviar;
+					
+					if (mensagem.isAutomatica()) {
+						
+						mensagemEnviar = mensagem.getUsuario() + " " + mensagem.getMensagem();
+						if (cliente.getId() == mensagem.getUsuario()) {
+							mensagemEnviar = "Você " + mensagem.getMensagem();
+						}
+						
+					} else {
+						
+						mensagemEnviar = mensagem.getUsuario() + " disse: " + mensagem.getMensagem();
+						if (cliente.getId() == mensagem.getUsuario()) {
+							mensagemEnviar = "Você disse: " + mensagem.getMensagem();
+						}
 					}
 
 					System.out.println("\n\nDistribuindo para cada cliente.");
