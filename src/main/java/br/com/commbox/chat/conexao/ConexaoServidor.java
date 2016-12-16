@@ -2,8 +2,9 @@ package br.com.commbox.chat.conexao;
 
 public interface ConexaoServidor {
 
-	public int getId();
-	public ConexaoCliente recebeCliente();
+	public int getPorta();
+	public void rodar();
+	public void parar();
 	public void fechar();
-	
+
 }

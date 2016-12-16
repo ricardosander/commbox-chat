@@ -1,16 +1,17 @@
 package br.com.commbox.chat.servidor;
 
 import br.com.commbox.chat.conexao.ConexaoCliente;
+import br.com.commbox.chat.conexao.ConexaoServidorSimples;
 import br.com.commbox.chat.model.Mensagem;
 import br.com.commbox.chat.model.MensagemFactory;
 
 public class RecebeCliente implements Runnable {
 
-	private final Servidor servidor;
+	private final ConexaoServidorSimples servidor;
 	private final ConexaoCliente cliente;
 
-	public RecebeCliente(Servidor servidor, ConexaoCliente cliente) {
-		this.servidor = servidor;
+	public RecebeCliente(ConexaoServidorSimples conexaoServidorSimples, ConexaoCliente cliente) {
+		this.servidor = conexaoServidorSimples;
 		this.cliente = cliente;
 	}
 

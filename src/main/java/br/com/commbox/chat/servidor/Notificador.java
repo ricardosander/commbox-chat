@@ -1,13 +1,14 @@
 package br.com.commbox.chat.servidor;
 
+import br.com.commbox.chat.conexao.ConexaoServidorSimples;
 import br.com.commbox.chat.model.Mensagem;
 
 public class Notificador implements Runnable {
 
-	private final Servidor servidor;
+	private final ConexaoServidorSimples servidor;
 
-	public Notificador(Servidor servidor) {
-		this.servidor = servidor;
+	public Notificador(ConexaoServidorSimples conexaoServidorSimples) {
+		this.servidor = conexaoServidorSimples;
 	}
 
 	public void run() {
