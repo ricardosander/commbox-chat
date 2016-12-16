@@ -49,29 +49,44 @@ public class ConexaoClienteNio implements ConexaoCliente {
 	@Override
 	public String ler() {
 
-		String retorno = null;
+		int barras = 0;
 		try {
 
-			ByteBuffer buffer = ByteBuffer.allocate(1024);
+			ByteBuffer buffer = ByteBuffer.allocate(1);
 			StringBuilder builder = new StringBuilder();
 
 			int bytesLidos = this.socketChannel.read(buffer);
 
-			if (bytesLidos == -1) {
-				
-				this.temConteudo.set(false);
-				return null;
-			}
+			do {
 
-			buffer.flip();
-			byte[] bytes = new byte[buffer.limit()];
-			buffer.get(bytes);
-			builder.append(new String(bytes));
-			buffer.clear();
+				if (bytesLidos == -1) {
 
-			retorno = builder.toString();
+					this.temConteudo.set(false);
+					return null;
+				}
 
-			return retorno;
+				buffer.flip();
+
+				while (buffer.hasRemaining()) {
+
+					char c = (char) buffer.get();
+					if (c == '|') {
+						barras++;
+					} else {
+						barras = 0;
+					}
+
+					if (barras != 2) {
+						builder.append(c);
+					} else {
+						buffer.compact();
+						return builder.toString();
+					}
+				}
+				buffer.clear();
+				bytesLidos = this.socketChannel.read(buffer);
+
+			} while (true);
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);

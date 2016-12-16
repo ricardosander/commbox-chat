@@ -12,7 +12,10 @@ public class Cliente {
 
 	public Cliente(String servidor, int porta) {
 
-		this.cliente = new ConexaoClienteFactory().newConexaoCliente(ConexaoClienteFactory.SOCKET, servidor, porta);
+		int tipo = ConexaoClienteFactory.NIO_SOCKET;
+		ConexaoClienteFactory factory = new ConexaoClienteFactory();
+
+		this.cliente = factory.newConexaoCliente(tipo, servidor, porta);
 		this.janela = new JanelaFactory().newJanela();
 		System.out.println("\fConectado ao servidor na porta " + cliente.getClass());
 	}
