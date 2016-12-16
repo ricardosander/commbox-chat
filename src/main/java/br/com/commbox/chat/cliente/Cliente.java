@@ -9,16 +9,16 @@ public class Cliente {
 
 	private ConexaoCliente cliente;
 	private Janela janela;
-	
+
 	public Cliente(String servidor, int porta) {
-		
-		this.cliente = new ConexaoClienteFactory().newConexaoCliente(servidor, porta);
+
+		this.cliente = new ConexaoClienteFactory().newConexaoCliente(ConexaoClienteFactory.SOCKET, servidor, porta);
 		this.janela = new JanelaFactory().newJanela();
 		System.out.println("\fConectado ao servidor na porta " + cliente.getClass());
 	}
-	
+
 	public void rodar() {
-		
+
 		try {
 
 			this.janela.abrir();
@@ -36,7 +36,7 @@ public class Cliente {
 			System.out.println("Houve um erro de thread: " + e.getMessage());
 		}
 	}
-	
+
 	public void parar() {
 		this.janela.fechar();
 		this.cliente.fechar();
