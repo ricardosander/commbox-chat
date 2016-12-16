@@ -12,7 +12,7 @@ public class Cliente {
 
 	public Cliente(String servidor, int porta) {
 
-		int tipo = ConexaoClienteFactory.NIO_SOCKET;
+		int tipo = ConexaoClienteFactory.SOCKET;
 		ConexaoClienteFactory factory = new ConexaoClienteFactory();
 
 		this.cliente = factory.newConexaoCliente(tipo, servidor, porta);

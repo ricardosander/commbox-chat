@@ -7,7 +7,7 @@ public class Servidor {
 
 	public static void main(String[] args) {
 
-		int tipo = ConexaoServidorFactory.NIO_SOCKET;
+		int tipo = ConexaoServidorFactory.SOCKET;
 		int porta = 12345;
 
 		ConexaoServidorFactory factory = new ConexaoServidorFactory();
