@@ -2,6 +2,7 @@ package br.com.commbox.chat.conexao;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.SocketException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +16,7 @@ import br.com.commbox.chat.servidor.MinhaThreadFactory;
 import br.com.commbox.chat.servidor.Notificador;
 import br.com.commbox.chat.servidor.RecebeCliente;
 import br.com.commbox.chat.servidor.UsuariosOnline;
+import br.com.commbox.chat.ui.JanelaServidor;
 
 public class ConexaoServidorSimples implements ConexaoServidor {
 
@@ -52,11 +54,15 @@ public class ConexaoServidorSimples implements ConexaoServidor {
 	@Override
 	public void rodar() {
 
+		this.threadPool.execute(new JanelaServidor(this));
 		this.threadPool.execute(new Notificador(this));
 		while (true) {
 
 			ConexaoCliente cliente = this.recebeCliente();
 
+			if (cliente == null) {
+				break;
+			}
 			System.out.println("\n\nRecebendo cliente na porta: " + cliente.getId());
 			this.adicionar(cliente);
 
@@ -87,9 +93,12 @@ public class ConexaoServidorSimples implements ConexaoServidor {
 
 		try {
 			return this.clienteFactory.newConexaoCliente(this.servidor.accept());
+		} catch (SocketException e) {
+			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		return null;
 	}
 
 	public void executa(Runnable runnable) {

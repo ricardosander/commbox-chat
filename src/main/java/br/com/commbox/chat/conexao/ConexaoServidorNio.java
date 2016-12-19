@@ -3,14 +3,17 @@ package br.com.commbox.chat.conexao;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import br.com.commbox.chat.model.Mensagem;
 import br.com.commbox.chat.model.MensagemFactory;
+import br.com.commbox.chat.ui.JanelaServidor;
 
 public class ConexaoServidorNio implements ConexaoServidor {
 
@@ -18,6 +21,8 @@ public class ConexaoServidorNio implements ConexaoServidor {
 	private final ServerSocketChannel serverSocketChannel;
 	private final Selector selector;
 	private final ByteBuffer buffer;
+	private JanelaServidor janela;
+	private final AtomicBoolean rodando = new AtomicBoolean(true);
 
 	public ConexaoServidorNio(int porta) {
 
@@ -47,6 +52,11 @@ public class ConexaoServidorNio implements ConexaoServidor {
 	@Override
 	public void rodar() {
 
+		this.janela = new JanelaServidor(this);
+		Thread threadJanela = new Thread(this.janela, "Janela Servidor");
+		threadJanela.setDaemon(true);
+		threadJanela.start();
+
 		try {
 
 			System.out.println("Servidor iniciado");
@@ -54,7 +64,7 @@ public class ConexaoServidorNio implements ConexaoServidor {
 			Iterator<SelectionKey> inter;
 			SelectionKey chave;
 
-			while (true) {
+			while (this.rodando.get()) {
 
 				System.out.println("Ainda aceitando novos clientes.");
 				selector.select();
@@ -67,7 +77,7 @@ public class ConexaoServidorNio implements ConexaoServidor {
 					if (!chave.isValid()) {
 						continue;
 					}
-					
+
 					if (chave.isAcceptable()) {
 						this.recebe(chave);
 					}
@@ -79,27 +89,33 @@ public class ConexaoServidorNio implements ConexaoServidor {
 				}
 
 			}
+		} catch (ClosedSelectorException e) {
 
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	@Override
-	public void parar() {
-		try {
-			this.serverSocketChannel.close();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public void fechar() {
-		// TODO Auto-generated method stub
+	public void parar() {
 
+		this.rodando.set(false);
+		try {
+			this.selector.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		this.fechar();
+	}
+
+	@Override
+	public void fechar() {
+
+		try {
+			this.serverSocketChannel.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void le(SelectionKey chave) throws IOException {
@@ -124,8 +140,8 @@ public class ConexaoServidorNio implements ConexaoServidor {
 
 		if (lido < 0) {
 			mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, (int) chave.attachment(),
-					chave.attachment() + " vazou ");
-			
+					chave.attachment() + " saiu da sala.");
+
 			cliente.close();
 			this.atualizaUsuariosOnline();
 
@@ -147,7 +163,7 @@ public class ConexaoServidorNio implements ConexaoServidor {
 			if (chave.isValid() && chave.channel() instanceof SocketChannel) {
 
 				SocketChannel cliente = (SocketChannel) chave.channel();
-				
+
 				System.out.println("Enviando para " + cliente.socket().getPort() + ": " + mensagem.toString() + "||");
 				mensagem.setDestino(cliente.socket().getPort());
 
@@ -163,16 +179,17 @@ public class ConexaoServidorNio implements ConexaoServidor {
 
 		SocketChannel socketChannel = ((ServerSocketChannel) chave.channel()).accept();
 		socketChannel.configureBlocking(false);
-		
+
 		if (socketChannel != null) {
-		
+
 			socketChannel.configureBlocking(false);
 
 			int endereco = socketChannel.socket().getPort();
 			System.out.println("Aceitando cliente " + endereco);
 
 			MensagemFactory mensagemFactory = new MensagemFactory();
-			Mensagem mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, endereco, "entrou");
+			Mensagem mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, endereco,
+					"entrou na sala.");
 
 			socketChannel.register(selector, SelectionKey.OP_READ, endereco);
 
