@@ -26,6 +26,7 @@ public class ConexaoServidorSimples implements ConexaoServidor {
 	private final List<ConexaoCliente> clientes;
 	private final BlockingQueue<Mensagem> mensagens;
 	private final ExecutorService threadPool;
+	private JanelaServidor janela;
 
 	public ConexaoServidorSimples(int porta) {
 
@@ -38,8 +39,10 @@ public class ConexaoServidorSimples implements ConexaoServidor {
 			this.threadPool = Executors.newCachedThreadPool(new MinhaThreadFactory());
 			this.clientes = Collections.synchronizedList(new LinkedList<>());
 
-			System.out.println("\f----- Iniciando Servidor-----");
-			System.out.println("Porta: " + this.getId());
+			this.janela = new JanelaServidor(this);
+
+			this.janela.escreverConsole("\f----- Iniciando Servidor-----");
+			this.janela.escreverConsole("Porta: " + this.getId());
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -54,7 +57,7 @@ public class ConexaoServidorSimples implements ConexaoServidor {
 	@Override
 	public void rodar() {
 
-		this.threadPool.execute(new JanelaServidor(this));
+		this.threadPool.execute(this.janela);
 		this.threadPool.execute(new Notificador(this));
 		while (true) {
 
@@ -63,7 +66,7 @@ public class ConexaoServidorSimples implements ConexaoServidor {
 			if (cliente == null) {
 				break;
 			}
-			System.out.println("\n\nRecebendo cliente na porta: " + cliente.getId());
+			this.janela.escreverConsole("\n\nRecebendo cliente na porta: " + cliente.getId());
 			this.adicionar(cliente);
 
 			this.threadPool.execute(new RecebeCliente(this, cliente));
@@ -73,7 +76,8 @@ public class ConexaoServidorSimples implements ConexaoServidor {
 
 	@Override
 	public void parar() {
-		System.out.println("\n\n\nParando servidor.");
+
+		this.janela.escreverConsole("\n\n\nParando servidor.");
 		// fechar e avisar os clientes.
 		this.threadPool.shutdown();
 		this.fechar();
@@ -94,7 +98,7 @@ public class ConexaoServidorSimples implements ConexaoServidor {
 		try {
 			return this.clienteFactory.newConexaoCliente(this.servidor.accept());
 		} catch (SocketException e) {
-			
+
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -117,16 +121,20 @@ public class ConexaoServidorSimples implements ConexaoServidor {
 		return mensagens;
 	}
 
+	public JanelaServidor getJanela() {
+		return this.janela;
+	}
+
 	public synchronized void adicionar(ConexaoCliente cliente) {
 
 		this.clientes.add(cliente);
-		this.threadPool.execute(new UsuariosOnline(this.threadPool, this.clientes));
+		this.threadPool.execute(new UsuariosOnline(this));
 	}
 
 	public synchronized void remover(ConexaoCliente cliente) {
 
 		this.clientes.remove(cliente);
-		this.threadPool.execute(new UsuariosOnline(this.threadPool, this.clientes));
+		this.threadPool.execute(new UsuariosOnline(this));
 	}
 
 }

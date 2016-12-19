@@ -18,22 +18,29 @@ public class RecebeCliente implements Runnable {
 	public void run() {
 
 		MensagemFactory mensagemFactory = new MensagemFactory();
-		
-		Mensagem entrada = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, this.cliente.getId(), "entrou na sala");
+
+		Mensagem entrada = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, this.cliente.getId(),
+				"entrou na sala");
+		this.servidor.getJanela().escreverMensagem(entrada.getMensagem());
+
 		this.servidor.executa(new NotificaEvento(this.servidor.getMensagens(), entrada));
-		
+
 		while (this.cliente.temConteudo()) {
-			
-			Mensagem mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_USUARIO, this.cliente.getId(), this.cliente.ler());
+
+			Mensagem mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_USUARIO, this.cliente.getId(),
+					this.cliente.ler());
+			this.servidor.getJanela().escreverMensagem(mensagem.getMensagem());
 			this.servidor.executa(new NotificaEvento(this.servidor.getMensagens(), mensagem));
 		}
-		
-		Mensagem saida = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, this.cliente.getId(), "saiu na sala");
-		
+
+		Mensagem saida = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, this.cliente.getId(),
+				"saiu na sala");
+
+		this.servidor.getJanela().escreverMensagem(saida.getMensagem());
 		this.servidor.executa(new NotificaEvento(this.servidor.getMensagens(), saida));
-		
+
 		this.servidor.remover(cliente);
-		cliente.fechar(); 
+		cliente.fechar();
 	}
 
 }

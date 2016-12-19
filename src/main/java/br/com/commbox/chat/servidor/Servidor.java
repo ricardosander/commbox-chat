@@ -11,9 +11,9 @@ public class Servidor {
 		int porta = 12345;
 
 		ConexaoServidorFactory factory = new ConexaoServidorFactory();
-		
+
 		ConexaoServidor servidor = factory.newConexaoServidor(tipo, porta);
-		
+
 		servidor.rodar();
 		System.exit(0);
 	}

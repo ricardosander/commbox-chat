@@ -55,7 +55,7 @@ public class JanelaChat implements Janela {
 		textoUsuarios = new JTextArea(10, 4);
 
 		textoUsuarios.setText("Usuários On-line");
-		
+
 		textoChat.setEditable(false);
 		textoUsuarios.setEditable(false);
 
@@ -69,7 +69,7 @@ public class JanelaChat implements Janela {
 
 		JScrollPane scrollPaneUsuarios = new JScrollPane(textoUsuarios);
 		scrollPaneUsuarios.setPreferredSize(new Dimension(150, 200));
-		
+
 		this.painelChat.add(scrollPaneChat);
 		this.painelUsuarios.add(scrollPaneUsuarios);
 		this.painelMensagem.add(scrollPaneMessage);
@@ -130,7 +130,7 @@ public class JanelaChat implements Janela {
 
 		this.painelSuperior = new JPanel();
 		this.painelSuperior.setLayout(new BoxLayout(painelSuperior, BoxLayout.X_AXIS));
-		
+
 		this.painelChat = new JPanel();
 		this.painelUsuarios = new JPanel();
 		this.painelMensagem = new JPanel();
@@ -138,7 +138,7 @@ public class JanelaChat implements Janela {
 
 		this.painelSuperior.add(this.painelChat);
 		this.painelSuperior.add(this.painelUsuarios);
-		
+
 		this.container.add(this.painelSuperior);
 		this.container.add(this.painelMensagem);
 		this.container.add(this.painelBotoes);
@@ -152,7 +152,7 @@ public class JanelaChat implements Janela {
 
 	@Override
 	public void fechar() {
-		
+
 		synchronized (this) {
 			this.notifyAll();
 		}
@@ -186,7 +186,7 @@ public class JanelaChat implements Janela {
 
 	@Override
 	public void atualizaUsuarios(String usuarios) {
-		
+
 		usuarios = usuarios.replace(";", QUEBRA_DE_LINHA);
 		this.textoUsuarios.setText("Usuários On-line" + QUEBRA_DE_LINHA + usuarios);
 	}

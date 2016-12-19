@@ -24,7 +24,7 @@ public class Notificador implements Runnable {
 			}
 
 		} catch (InterruptedException e) {
-			System.out.println("Erro ao buscar mensagem: " + e.getMessage());
+			this.servidor.getJanela().escreverConsole("Erro ao buscar mensagem: " + e.getMessage());
 		}
 	}
 }

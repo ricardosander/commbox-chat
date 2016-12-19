@@ -59,14 +59,14 @@ public class ConexaoServidorNio implements ConexaoServidor {
 
 		try {
 
-			System.out.println("Servidor iniciado");
+			this.janela.escreverConsole("Servidor iniciado");
 
 			Iterator<SelectionKey> inter;
 			SelectionKey chave;
 
 			while (this.rodando.get()) {
 
-				System.out.println("Ainda aceitando novos clientes.");
+				this.janela.escreverConsole("Ainda aceitando novos clientes.");
 				selector.select();
 				inter = selector.selectedKeys().iterator();
 				while (inter.hasNext()) {
@@ -149,8 +149,8 @@ public class ConexaoServidorNio implements ConexaoServidor {
 			mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_USUARIO, (int) chave.attachment(),
 					builder.toString());
 		}
-
-		System.out.println("Mensagem recebida: " + mensagem);
+		
+		this.janela.escreverMensagem(mensagem.getMensagem());
 		this.espalhar(mensagem);
 	}
 
@@ -164,7 +164,7 @@ public class ConexaoServidorNio implements ConexaoServidor {
 
 				SocketChannel cliente = (SocketChannel) chave.channel();
 
-				System.out.println("Enviando para " + cliente.socket().getPort() + ": " + mensagem.toString() + "||");
+				this.janela.escreverConsole("Enviando para " + cliente.socket().getPort() + ": " + mensagem.toString() + "||");
 				mensagem.setDestino(cliente.socket().getPort());
 
 				buffer = ByteBuffer.wrap((mensagem.toString() + "||").getBytes());
@@ -185,12 +185,13 @@ public class ConexaoServidorNio implements ConexaoServidor {
 			socketChannel.configureBlocking(false);
 
 			int endereco = socketChannel.socket().getPort();
-			System.out.println("Aceitando cliente " + endereco);
+			this.janela.escreverConsole("Aceitando cliente " + endereco);
 
 			MensagemFactory mensagemFactory = new MensagemFactory();
 			Mensagem mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, endereco,
 					"entrou na sala.");
 
+			this.janela.escreverMensagem(mensagem.getMensagem());
 			socketChannel.register(selector, SelectionKey.OP_READ, endereco);
 
 			this.atualizaUsuariosOnline();
@@ -214,6 +215,8 @@ public class ConexaoServidorNio implements ConexaoServidor {
 				builder.append(cliente.socket().getPort());
 			}
 		}
+		
+		this.janela.escreverUsuariosOnline(builder.toString());
 
 		MensagemFactory factory = new MensagemFactory();
 		Mensagem mensagem = factory.newMensagem(MensagemFactory.MESANGEM_USUARIOS_ONLINE, 0, builder.toString());
