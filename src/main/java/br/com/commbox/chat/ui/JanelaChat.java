@@ -152,6 +152,10 @@ public class JanelaChat implements Janela {
 
 	@Override
 	public void fechar() {
+		
+		synchronized (this) {
+			this.notifyAll();
+		}
 		this.janela.setVisible(false);
 	}
 

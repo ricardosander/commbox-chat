@@ -54,7 +54,7 @@ public class ConexaoServidorNio implements ConexaoServidor {
 			Iterator<SelectionKey> inter;
 			SelectionKey chave;
 
-			while (serverSocketChannel.isOpen()) {
+			while (true) {
 
 				System.out.println("Ainda aceitando novos clientes.");
 				selector.select();
@@ -64,20 +64,22 @@ public class ConexaoServidorNio implements ConexaoServidor {
 					chave = inter.next();
 					inter.remove();
 
+					if (!chave.isValid()) {
+						continue;
+					}
+					
 					if (chave.isAcceptable()) {
-						acessa(chave);
+						this.recebe(chave);
 					}
 
 					if (chave.isReadable()) {
-						ler(chave);
+						this.le(chave);
 					}
 
 				}
 
-				serverSocketChannel.accept();
 			}
 
-			serverSocketChannel.close();
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -87,8 +89,11 @@ public class ConexaoServidorNio implements ConexaoServidor {
 
 	@Override
 	public void parar() {
-		// TODO Auto-generated method stub
-
+		try {
+			this.serverSocketChannel.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -97,7 +102,7 @@ public class ConexaoServidorNio implements ConexaoServidor {
 
 	}
 
-	private void ler(SelectionKey chave) throws IOException {
+	private void le(SelectionKey chave) throws IOException {
 
 		SocketChannel cliente = (SocketChannel) chave.channel();
 
@@ -120,8 +125,10 @@ public class ConexaoServidorNio implements ConexaoServidor {
 		if (lido < 0) {
 			mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, (int) chave.attachment(),
 					chave.attachment() + " vazou ");
-			this.atualizaUsuariosOnline();
 			
+			cliente.close();
+			this.atualizaUsuariosOnline();
+
 		} else {
 			mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_USUARIO, (int) chave.attachment(),
 					builder.toString());
@@ -140,6 +147,7 @@ public class ConexaoServidorNio implements ConexaoServidor {
 			if (chave.isValid() && chave.channel() instanceof SocketChannel) {
 
 				SocketChannel cliente = (SocketChannel) chave.channel();
+				
 				System.out.println("Enviando para " + cliente.socket().getPort() + ": " + mensagem.toString() + "||");
 				mensagem.setDestino(cliente.socket().getPort());
 
@@ -151,21 +159,26 @@ public class ConexaoServidorNio implements ConexaoServidor {
 		}
 	}
 
-	private void acessa(SelectionKey chave) throws IOException {
+	private void recebe(SelectionKey chave) throws IOException {
 
 		SocketChannel socketChannel = ((ServerSocketChannel) chave.channel()).accept();
 		socketChannel.configureBlocking(false);
+		
+		if (socketChannel != null) {
+		
+			socketChannel.configureBlocking(false);
 
-		int endereco = socketChannel.socket().getPort();
-		System.out.println("Aceitando cliente " + endereco);
+			int endereco = socketChannel.socket().getPort();
+			System.out.println("Aceitando cliente " + endereco);
 
-		MensagemFactory mensagemFactory = new MensagemFactory();
-		Mensagem mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, endereco, "entrou");
+			MensagemFactory mensagemFactory = new MensagemFactory();
+			Mensagem mensagem = mensagemFactory.newMensagem(MensagemFactory.MENSAGEM_NOTIFICACAO, endereco, "entrou");
 
-		socketChannel.register(selector, SelectionKey.OP_READ, endereco);
+			socketChannel.register(selector, SelectionKey.OP_READ, endereco);
 
-		this.atualizaUsuariosOnline();
-		this.espalhar(mensagem);
+			this.atualizaUsuariosOnline();
+			this.espalhar(mensagem);
+		}
 	}
 
 	private void atualizaUsuariosOnline() throws IOException {

@@ -20,10 +20,10 @@ public class Recebedor implements Runnable {
 
 		String linha;
 		while (this.conexao.temConteudo()) {
-
+			
 			linha = this.conexao.ler();
-
-			if (linha.trim().isEmpty()) {
+			
+			if (linha == null || linha.trim().isEmpty()) {
 				continue;
 			}
 
@@ -31,7 +31,5 @@ public class Recebedor implements Runnable {
 			Mensagem mensagem = mensagemFactory.newMensagem(linha);
 			mensagem.escrever(this.janela);
 		}
-
-		this.conexao.fechar();
 	}
 }

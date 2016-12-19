@@ -25,8 +25,8 @@ public class Cliente {
 		try {
 
 			this.janela.abrir();
-			Thread recebedor = new Thread(new Recebedor(cliente, janela));
-			Thread enviador = new Thread(new Enviador(cliente, janela));
+			Thread recebedor = new Thread(new Recebedor(cliente, janela), "Recebedor");
+			Thread enviador = new Thread(new Enviador(cliente, janela), "Enviador");
 
 			recebedor.start();
 			enviador.start();
@@ -35,6 +35,7 @@ public class Cliente {
 
 			System.out.println("\n\n\nFinalizando cliente");
 
+			this.parar();
 		} catch (InterruptedException e) {
 			System.out.println("Houve um erro de thread: " + e.getMessage());
 		}

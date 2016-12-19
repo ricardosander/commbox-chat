@@ -3,6 +3,8 @@ package br.com.commbox.chat.conexao;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -38,7 +40,11 @@ public class ConexaoClienteNio implements ConexaoCliente {
 
 	@Override
 	public void fechar() {
-		this.fechar();
+		try {
+		this.socketChannel.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	@Override
@@ -88,9 +94,12 @@ public class ConexaoClienteNio implements ConexaoCliente {
 
 			} while (true);
 
+		} catch (ClosedChannelException e) {
+			this.temConteudo.set(false);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		return null;
 	}
 
 	@Override
