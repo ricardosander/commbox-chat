@@ -10,12 +10,11 @@ public class Cliente {
 	private ConexaoCliente cliente;
 	private Janela janela;
 
-	public Cliente(String servidor, int porta) {
+	public Cliente() {
 
-		int tipo = ConexaoClienteFactory.NIO_SOCKET;
 		ConexaoClienteFactory factory = new ConexaoClienteFactory();
 
-		this.cliente = factory.newConexaoCliente(tipo, servidor, porta);
+		this.cliente = factory.newConexaoCliente();
 		this.janela = new JanelaFactory().newJanela();
 		System.out.println("\fConectado ao servidor na porta " + cliente.getClass());
 	}
@@ -48,7 +47,7 @@ public class Cliente {
 
 	public static void main(String[] args) {
 
-		Cliente cliente = new Cliente("localhost", 12345);
+		Cliente cliente = new Cliente();
 		cliente.rodar();
 	}
 }

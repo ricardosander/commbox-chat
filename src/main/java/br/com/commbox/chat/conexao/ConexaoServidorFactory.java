@@ -1,19 +1,23 @@
 package br.com.commbox.chat.conexao;
 
+import br.com.commbox.Configuracao;
+
 public class ConexaoServidorFactory {
 
-	public final static int SOCKET = 1;
-	public final static int NIO_SOCKET = 2;
+	public ConexaoServidor newConexaoServidor() {
 
-	public ConexaoServidor newConexaoServidor(int tipo, int porta) {
+		Configuracao configuracao = Configuracao.getInstance();
 
-		switch (tipo) {
+		switch (configuracao.getServico()) {
 
-		case ConexaoClienteFactory.SOCKET:
-			return new ConexaoServidorSimples(porta);
+		case Configuracao.SOCKET:
+			return new ConexaoServidorSimples(configuracao.getPorta());
 
-		case ConexaoClienteFactory.NIO_SOCKET:
-			return new ConexaoServidorNio(porta);
+		case Configuracao.NIO_SOCKET:
+			return new ConexaoServidorNio(configuracao.getPorta());
+
+		case Configuracao.MINA:
+			return new ConexaoServidorMina(configuracao.getPorta());
 
 		default:
 			throw new IllegalArgumentException("Tipo inválido para conexão do servidor.");

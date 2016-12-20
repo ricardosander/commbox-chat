@@ -3,25 +3,29 @@ package br.com.commbox.chat.conexao;
 import java.io.IOException;
 import java.net.Socket;
 
+import br.com.commbox.Configuracao;
+
 public class ConexaoClienteFactory {
 
-	public final static int SOCKET = 1;
-	public final static int NIO_SOCKET = 2;
+	public ConexaoCliente newConexaoCliente() {
 
-	public ConexaoCliente newConexaoCliente(int tipo, String servidor, int porta) {
+		Configuracao configuracao = Configuracao.getInstance();
 
 		try {
-			switch (tipo) {
+			switch (configuracao.getServico()) {
 
-			case ConexaoClienteFactory.SOCKET:
-				return new ConexaoClienteSimples(new Socket(servidor, porta));
+			case Configuracao.SOCKET:
+				return new ConexaoClienteSimples(new Socket(configuracao.getServidor(), configuracao.getPorta()));
 
-			case ConexaoClienteFactory.NIO_SOCKET:
-				return new ConexaoClienteNio(servidor, porta);
+			case Configuracao.NIO_SOCKET:
+				return new ConexaoClienteNio(configuracao.getServidor(), configuracao.getPorta());
+
+			case Configuracao.MINA:
+				return new ConexaoClienteMina(configuracao.getServidor(), configuracao.getPorta());
 
 			default:
 				throw new IllegalArgumentException("Tipo de conexão para o cliente inválido.");
-			
+
 			}
 
 		} catch (IOException e) {
